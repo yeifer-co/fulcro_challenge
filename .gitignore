@@ -1,3 +1,4 @@
+# Artifacts created by IntelliJ or Leiningen working with Clojure
 pom.xml
 pom.xml.asc
 clojure_challenge.iml
@@ -14,3 +15,6 @@ clojure_challenge.iml
 .nrepl-port
 .idea
 .cpcache/
+# Artifacts created by Node.js
+node_modules/
+package-lock.json

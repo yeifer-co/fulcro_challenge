@@ -1,5 +1,6 @@
 pom.xml
 pom.xml.asc
+clojure_challenge.iml
 *.jar
 *.class
 /lib/
@@ -11,4 +12,5 @@ pom.xml.asc
 .lein-plugins/
 .lein-failures
 .nrepl-port
+.idea
 .cpcache/

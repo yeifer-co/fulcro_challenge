@@ -10,7 +10,7 @@
                     :dev        {:compiler-options {:external-config {:fulcro {:html-source-annotations? true}}}}
 
                    :modules     {:main        {:init-fn app.client/init
-                                               :entries [app.client]}}                   ; Get all the ClojureScript code from the app.client namespace and call the init function
-                   :devtools    {:after-load  app.client/refresh                               ; Call the init function after the code is loaded
+                                               :entries [app.client]}}                                  ; Get all the ClojureScript code from the app.client namespace and call the init function
+                   :devtools    {:after-load  app.client/refresh                                        ; Call the init function after the code is loaded
                                  :preloads    [com.fulcrologic.fulcro.inspect.preload
-                                               com.fulcrologic.fulcro.inspect.dom-picker-preload]}}}}  ; Load the Fulcro inspect tool for development debugging
+                                               com.fulcrologic.fulcro.inspect.dom-picker-preload]}}}}   ; Load the Fulcro inspect tool for development debugging

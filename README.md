@@ -51,6 +51,8 @@ b. Datomic - Is a distributed database that stores data as facts (Inmutable data
 
 #### FULCRO Reading over fulcro
 
+Overview (EQL, Pathom, Fulcro) -> https://fulcro-community.github.io/guides/tutorial-eql-pathom-overview/index.html
+
 https://book.fulcrologic.com/
 
 Mutations -> https://book.fulcrologic.com/#_mutations

@@ -1,0 +1,33 @@
+{
+  "name": "fulcro_challenge",
+  "version": "0.0.1",
+  "description": "Building a ToDo app using Fulcro",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeifer-co/fulcro_challenge.git"
+  },
+  "keywords": [
+    "Fulcro",
+    "Clojure",
+    "Todo",
+    "App"
+  ],
+  "author": "Yeifer",
+  "license": "EPL-2.0",
+  "bugs": {
+    "url": "https://github.com/yeifer-co/fulcro_challenge/issues"
+  },
+  "homepage": "https://github.com/yeifer-co/fulcro_challenge#readme",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "shadow-cljs": "^2.25.10"
+  }
+}

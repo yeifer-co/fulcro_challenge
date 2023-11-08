@@ -26,8 +26,8 @@
   },
   "homepage": "https://github.com/yeifer-co/fulcro_challenge#readme",
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "shadow-cljs": "^2.25.10"
   }
 }

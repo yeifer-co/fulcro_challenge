@@ -13,6 +13,9 @@ Commit scopes
 - 📦: Project
 - 🧩: Codebase
 - 🧐: Testing
+- 🔮: Frontend
+- 📡: Backend
+- 🗄️: Database
 
 Commit structure
 

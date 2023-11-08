@@ -27,6 +27,26 @@ Build a  Todo APP using Fulcro
 - [ ] Connect with backend to save data with mutations and retrieve data with resolvers and load data with df/load
 - [ ] Install datomic and save data in the backend to datomic database
 
+## Architecture understanding
+
+Fulcro is a full-stack web framework, these are the main components:
+
+![Fulcro architecture](doc/diagrams/architecture.png)
+
+Frontend:
+
+a. UI - Fulcro/React components rendered a DOM and submit mutations to the backend to the Transaction Subsystem (Tx)
+
+b. Tx - The Transaction Subsystem is responsible for receiving mutations from the UI and asynchronously executes local mutations and sends remote mutations to the backend.
+
+c. Local DB - The Local DB is a local in-memory database that holds the application state. (Tx) typically schedules a re-render afterwards. The cached data is turned into a data tree according to the needs of the UI, to feed and render the UI.
+
+Backend:
+
+a. Pathom - Is a Clojure(Script) library that provides a query language (EQL) and a query engine. It is used to query the backend database and return the data to the frontend.
+
+b. Datomic - Is a distributed database that stores data as facts (Inmutable data). It is used to store the application data.
+
 ## Helpful links
 
 #### FULCRO Reading over fulcro

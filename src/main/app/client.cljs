@@ -23,8 +23,6 @@
   (comp/refresh-dynamic-queries! app)
   (js/console.log "Hot reload"))
 
-
-
 (comment
 
   (reset! (::app/state-atom app) {:foo "bar"})

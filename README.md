@@ -10,20 +10,21 @@ For this project you will need to have on your system:
 - Leiningen
 - Node.js
 - npm
+- Datomic Peer
 
 ## Challenges requirements
 
 Build a  Todo APP using Fulcro 
 
-- [ ] Todo app should be able to list the todos, create one, edit one, delete one, anything else fun you can think of.
-- [ ] Make fulcro defsc components for the components you need like todo todo-list etc.
+- [x] Todo app should be able to list the todos, create one, edit one, delete one, anything else fun you can think of.
+- [x] Make fulcro defsc components for the components you need like todo todo-list etc.
     - A component has
         - Ident
         - Initial-state ( at first for testing, then df/load will fill in the data )
         - Query
 
-- [ ] Build the rest of the fulcro components you need
-- [ ] Then make mutations in front end to save data to the fulcro state map
+- [x] Build the rest of the fulcro components you need
+- [x] Then make mutations in front end to save data to the fulcro state map
 - [ ] Connect with backend to save data with mutations and retrieve data with resolvers and load data with df/load
 - [ ] Install datomic and save data in the backend to datomic database
 

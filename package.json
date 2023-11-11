@@ -2,7 +2,6 @@
   "name": "fulcro_challenge",
   "version": "0.0.1",
   "description": "Building a ToDo app using Fulcro",
-  "main": "index.js",
   "directories": {
     "doc": "doc"
   },

@@ -1,16 +1,39 @@
-{:deps      {:aliases [:dev]}                               ; Include the :dev alias so CLI can make compile-time only deps available
- :nrepl     {:port 9000}                                    ; Start an nREPL server on port 9000
+{:deps   {:aliases [:dev]}
+ :nrepl  {:port 9000}
+ :builds {:main       {:target     :browser
+                       :output-dir "resources/public/js/main"
+                       :asset-path "/js/main"
 
- ; :dev-http  {8080 "resources/public"}                       ; Start an HTTP server on port 8080, serving files from resources/public
- :dev-http  {8080 "classpath:public"}                       ; Use the classpath to serve files from resources/public, int IntelliJ it is configured as a resource folder
+                       :modules    {:main {:init-fn app.client/init}}
+                       ;; guardrails checks only during dev
+                       :dev        {:compiler-options
+                                    {:external-config {:guardrails {}}}}
 
- :builds    {:main {:target     :browser                    ; Build a browser target
-                   :output-dir  "resources/public/js/main"  ; Node.js target would be "resources/public/js/main"
-                   :asset-path  "/js/main"                  ; Path to the output files from the HTTP server relative to the server root
-                    :dev        {:compiler-options {:external-config {:fulcro {:html-source-annotations? true}}}}
+                       :devtools   {:after-load app.client/refresh
+                                    :preloads   [com.fulcrologic.fulcro.inspect.preload app.development-preload]}}
 
-                   :modules     {:main        {:init-fn app.client/init
-                                               :entries [app.client]}}                                  ; Get all the ClojureScript code from the app.client namespace and call the init function
-                   :devtools    {:after-load  app.client/refresh                                        ; Call the init function after the code is loaded
-                                 :preloads    [com.fulcrologic.fulcro.inspect.preload
-                                               com.fulcrologic.fulcro.inspect.dom-picker-preload]}}}}   ; Load the Fulcro inspect tool for development debugging
+          :test       {:target           :browser-test
+                       :test-dir         "resources/public/js/test"
+                       :ns-regexp        "-test$"
+                       ;; static required for mocking to work
+                       :compiler-options {:static-fns      false
+                                          :external-config {:guardrails {:throw? true}}}
+                       :devtools         {:http-port          8022
+                                          :http-resource-root "public"
+                                          :http-root          "resources/public/js/test"}}
+
+          :ci-tests   {:target           :karma
+                       :js-options       {:js-provider :shadow}
+                       :compiler-options {:static-fns      false
+                                          :external-config {:guardrails {:throw? true}}}
+                       :output-to        "target/ci.js"
+                       :ns-regexp        "-test$"}
+
+          :workspaces {:target     nubank.workspaces.shadow-cljs.target
+                       :ns-regexp  "-(test|ws)$"
+                       :output-dir "resources/public/workspaces/js"
+                       :asset-path "/workspaces/js"
+                       :devtools   {:preloads           [com.fulcrologic.fulcro.inspect.preload]
+                                    :http-root          "resources/public/workspaces"
+                                    :http-port          8023
+                                    :http-resource-root "."}}}}

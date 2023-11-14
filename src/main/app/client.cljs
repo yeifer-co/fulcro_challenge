@@ -6,7 +6,10 @@
             [com.fulcrologic.fulcro.dom :as dom :refer [span]]
             [com.fulcrologic.fulcro.dom.events :as events]
             [com.fulcrologic.fulcro.mutations :as mutation :refer [defmutation]]
-            [com.fulcrologic.fulcro.components :as comp :refer [defsc fragment]]))
+            [com.fulcrologic.fulcro.components :as comp :refer [defsc fragment]]
+            [com.wsscode.pathom.connect :as pc]
+            [com.wsscode.pathom.core :as p]
+            ))
 
 (def sui-container (interop/react-factory Container))
 (def sui-segment (interop/react-factory Segment))
@@ -214,4 +217,118 @@
   (merge/merge-component! app Person {:person/id 3
                                       :person/name "Jane Lee"
                                       :person/age 27})
-  )
+
+
+; Pathom test
+
+(require '[com.wsscode.pathom.core :as pathom])
+(def pathom-parser (pathom/parser {}))
+
+(pathom-parser {} {} [::latest-task])
+
+; DB testing
+
+  (require '[datomic.api :as d])
+  (def db-uri "datomic:dev://localhost:4334/hello")
+
+  (d/create-database db-uri)
+
+  (def conn (d/connect db-uri))
+
+; Any transactions submitted to the connection will be persisted to the storage that you chose when creating your database.
+  @(d/transact conn [{:db/doc "Hello world"}])
+
+(def movie-schema [{:db/ident :movie/title
+                    :db/valueType :db.type/string
+                    :db/cardinality :db.cardinality/one
+                    :db/doc "The title of the movie"}
+
+                   {:db/ident :movie/genre
+                    :db/valueType :db.type/string
+                    :db/cardinality :db.cardinality/one
+                    :db/doc "The genre of the movie"}
+
+                   {:db/ident :movie/release-year
+                    :db/valueType :db.type/long
+                    :db/cardinality :db.cardinality/one
+                    :db/doc "The year the movie was released in theaters"}])
+
+@(d/transact conn movie-schema)
+
+(def first-movies [{:movie/title "The Goonies"
+                    :movie/genre "action/adventure"
+                    :movie/release-year 1985}
+                   {:movie/title "Commando"
+                    :movie/genre "action/adventure"
+                    :movie/release-year 1985}
+                   {:movie/title "Repo Man"
+                    :movie/genre "punk dystopia"
+                    :movie/release-year 1984}])
+
+@(d/transact conn first-movies)
+
+; Query the database
+
+(def db (d/db conn))
+
+(def all-movies-q '[:find ?e
+                    :where [?e :movie/title]])
+
+(d/q all-movies-q db)
+
+
+(def all-titles-q '[:find ?movie-title
+                    :where [_ :movie/title ?movie-title]])
+
+(def titles-from-1985 '[:find ?title
+                        :where [?e :movie/title ?title]
+                        [?e :movie/release-year 1985]])
+
+(def all-data-from-1985 '[:find ?title ?year ?genre
+                          :where [?e :movie/title ?title]
+                          [?e :movie/release-year ?year]
+                          [?e :movie/genre ?genre]
+                          [?e :movie/release-year 1985]])
+
+(d/q all-data-from-1985 db)
+
+
+; New query
+
+(require '[datomic.api :as d])
+(def db-uri "datomic:dev://localhost:4334/hello")
+
+(d/create-database db-uri)
+
+(def conn (d/connect db-uri))
+
+(def db (d/db conn))
+
+
+(def all-data-from-1985 '[:find ?title ?year ?genre
+                          :where [?e :movie/title ?title]
+                          [?e :movie/release-year ?year]
+                          [?e :movie/genre ?genre]
+                          [?e :movie/release-year 1985]])
+
+(d/q all-data-from-1985 db)
+
+
+
+
+
+; Historical queries
+
+
+(d/q '[:find ?e
+       :where [?e :movie/title "Commando"]]
+     db)
+
+
+(def commando-id
+  (ffirst (d/q '[:find ?e
+                 :where [?e :movie/title "Commando"]]
+               db)))
+
+
+)

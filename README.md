@@ -48,6 +48,31 @@ a. Pathom - Is a Clojure(Script) library that provides a query language (EQL) an
 
 b. Datomic - Is a distributed database that stores data as facts (Inmutable data). It is used to store the application data.
 
+## Datomic research
+
+In the context of Clojure and Datomic, there are different libraries and tools available for working with Datomic databases. Let's discuss the differences between `datascript/datascript`, `com.datomic/client-pro`, and `com.datomic/peer`.
+
+#### datascript/datascript:
+
+- **Type:** Datascript is an in-memory database written in ClojureScript that provides a Datalog query language.
+- **Use Case:** It's often used for front-end development where you need a client-side database with a query language similar to Datomic.
+- **Storage:** Datascript stores data in memory, making it suitable for client-side applications with smaller datasets.
+- **Query Language:** Datalog, a declarative query language similar to Datomic's.
+
+#### com.datomic/client-pro:
+
+- **Type:** The Datomic Client Pro library is part of Datomic Cloud, which is a cloud-based version of Datomic.
+- **Use Case:** It's used for building applications that interact with Datomic Cloud. Datomic Cloud is a fully managed service provided by Cognitect.
+- **Connection:** It connects to Datomic Cloud over the network, allowing you to interact with a Datomic database hosted in the cloud.
+- **Features:** It includes features like database functions, schema management, and transactions.
+
+#### com.datomic/peer:
+
+- **Type:** The Datomic Peer library is used for connecting to an on-premise Datomic database (Datomic on-prem).
+- **Use Case:** It's used when you want to connect to a Datomic database that you manage locally or on your own infrastructure.
+- **Connection:** It connects directly to the Datomic storage service, allowing you to interact with a Datomic database that can be hosted on your own infrastructure.
+- **Features:** It provides features for querying, transactions, and schema management similar to the client-pro library.
+
 ## Helpful links
 
 #### FULCRO Reading over fulcro
@@ -76,6 +101,8 @@ Query -> https://book.fulcrologic.com/#_query
 https://chrome.google.com/webstore/detail/fulcro-inspect/meeijplnfjcihnhkpanepcaffklobaal
 
 #### PATHOM Reading over pathom
+
+Pathom -> https://blog.wsscode.com/pathom/v2/pathom/2.2.0/connect/basics.html
 
 https://github.com/wilkerlucio/pathom
 

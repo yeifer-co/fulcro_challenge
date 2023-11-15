@@ -21,7 +21,9 @@
 (defmutation delete-task [{:keys [id list-id]}]
   (action [{:keys [state]}]                                 ; What to do locally
           (swap! state update :task/id dissoc id)
-          (swap! state merge/remove-ident* [:task/id id] [:task-list/id list-id :task-list/tasks])))
+          (swap! state merge/remove-ident* [:task/id id] [:task-list/id list-id :task-list/tasks]))
+  (remote [env] true)
+  )
 
 (defmutation edit-description [{:keys [id new-value]}]
   (action [{:keys [state]}]

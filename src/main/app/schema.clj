@@ -90,6 +90,17 @@
 
   (d/q all-tasks-q db)
 
+  ; Create task-by-id query
+  (def task-by-id-q '[:find ?e ?id ?description ?completed ?list-id
+                      :in $ ?id
+                      :where
+                      [?e :task/id ?id]
+                      [?e :task/description ?description]
+                      [?e :task/completed ?completed]
+                      [?e :task/list-id ?list-id]])
+
+  (d/q task-by-id-q db 2)
+
   ; New value for task 2 description
 
   ; Get entity id for task 2
@@ -100,7 +111,7 @@
                                 db)))
 
   @(d/transact conn [{:db/id task-2-id
-                      :task/description "Take out the trash and recycling"}])
+                      :task/description "Take out the trash every day"}])
 
   ; Get current database value
 

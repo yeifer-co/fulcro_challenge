@@ -1,8 +1,10 @@
 (ns app.client
   (:require ["semantic-ui-react" :refer [Container Segment Button Input]]
+            [app.application :refer [app]]
             [com.fulcrologic.fulcro.algorithms.merge :as merge]
             [com.fulcrologic.fulcro.algorithms.react-interop :as interop]
             [com.fulcrologic.fulcro.application :as app]
+            [com.fulcrologic.fulcro.data-fetch :as df]
             [com.fulcrologic.fulcro.dom :as dom :refer [span]]
             [com.fulcrologic.fulcro.dom.events :as events]
             [com.fulcrologic.fulcro.mutations :as mutation :refer [defmutation]]
@@ -15,9 +17,6 @@
 (def sui-segment (interop/react-factory Segment))
 (def sui-button (interop/react-factory Button))
 (def sui-input (interop/react-factory Input))
-
-(defonce app (app/fulcro-app))
-; defonce ensures that the app is only created once, it is like a constant, but really it is a singleton pattern
 
 (defmutation delete-task [{:keys [id list-id]}]
   (action [{:keys [state]}]                                 ; What to do locally
@@ -57,15 +56,17 @@
 
 (defsc Task [this {:task/keys [id description completed list-id] :as props}]
   {:query [:task/id :task/description :task/completed :task/list-id]
-   :ident :task/id
-   :initial-state {:task/id           :param/id
-                   :task/description  :param/description
-                   :task/completed    :param/completed
-                   :task/list-id      :param/list-id}
+   :ident (fn [] [:task/id (:task/id props)])
+   ;:initial-state {:task/id           :param/id
+   ;                :task/description  :param/description
+   ;                :task/completed    :param/completed
+   ;                :task/list-id      :param/list-id}
    :initLocalState (fn [this {:task/keys [id description completed] :as props}]
                      {:editing?         false
                       :edit-value       description
                       :task-completed?  completed})}
+  ; Use df/load to load data from the server
+
   (js/console.log "Task render" id)
   (let [{:keys [editing? edit-value task-completed?]} (comp/get-state this)]
     (sui-segment {:key (str "task-" id) :vertical true}
@@ -89,17 +90,19 @@
                      :floated "right" :icon "edit outline" :style {:marginLeft "10px"}}))))))
 (def ui-task (comp/factory Task {:keyfn :task/id}))
 
-(defsc TaskList [this {:task-list/keys [tasks]}]
+(defsc TaskList [this {:task-list/keys [id item-count tasks] :as props}]
   {:query   [:task-list/id
              :task-list/item-count
              {:task-list/tasks (comp/get-query Task)}]
-   :ident   :task-list/id
-   :initial-state {:task-list/id    :param/id
-                   :task-list/item-count 3
-                   :task-list/tasks [{:id 1 :description "Task 1" :completed false :list-id 1}
-                                     {:id 2 :description "Task 2" :completed true :list-id 1}
-                                     {:id 3 :description "Task 3" :completed false :list-id 1}
-                                     ]}}
+   ;:ident   :task-list/id
+   :ident    (fn [] [:task-list/id (:task-list/id props)])
+   :initial-state {:task-list/id          :param/id
+                   :task-list/item-count  :param/item-count
+   ;                :task-list/tasks [{:id 1 :description "Task 1" :completed false :list-id 1}
+   ;                                  {:id 2 :description "Task 2" :completed true :list-id 1}
+   ;                                  {:id 3 :description "Task 3" :completed false :list-id 1}]
+   }
+   }
   (js/console.log "TaskList render" ::task-list)
   (when (not-empty tasks)
     (map ui-task tasks)))
@@ -150,7 +153,8 @@
   {:query [{:root/task-input (comp/get-query TaskInput)}
            {:root/task-list (comp/get-query TaskList)}]
    :initial-state {:root/task-input {:id 1 :list-id 1}
-                   :root/task-list {:id 1}}}
+                   :root/task-list {:id 1 :item-count 0}
+                   }}
   ; Root component does not need an ident, it is the root of the tree in database
   (js/console.log "Root render" ::root)
   (sui-container {:type "fluid" :style {:paddingTop "5em"}}
@@ -163,6 +167,7 @@
   "Shadow-cljs sets this up to be our entry-point function. See shadow-cljs.edn `:init-fn` in the modules of the main build."
   []
   (app/mount! app Root "app")
+  (df/load! app [:task-list/id 1] TaskList)
   (js/console.log "Loaded"))
 
 (defn ^:export refresh

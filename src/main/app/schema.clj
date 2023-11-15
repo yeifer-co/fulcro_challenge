@@ -1,4 +1,4 @@
-(ns app.db-schema
+(ns app.schema
   (:require [datomic.api :as d]))
 
 (def db-uri "datomic:dev://localhost:4334/todo")
@@ -18,7 +18,12 @@
    {:db/ident       :task/completed
     :db/valueType   :db.type/boolean
     :db/cardinality :db.cardinality/one
-    :db/doc         "Task completed"}])
+    :db/doc         "Task completed"}
+
+   {:db/ident       :task/list-id
+    :db/valueType   :db.type/long
+    :db/cardinality :db.cardinality/one
+    :db/doc         "Task list id"}])
 
 ; returns a connection to the database
 (defn get-conn []

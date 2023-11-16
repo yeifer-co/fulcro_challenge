@@ -1,6 +1,7 @@
 (ns app.client
   (:require ["semantic-ui-react" :refer [Container Segment Button Input]]
             [app.application :refer [app]]
+            [app.mutations :as api]
             [com.fulcrologic.fulcro.algorithms.merge :as merge]
             [com.fulcrologic.fulcro.algorithms.react-interop :as interop]
             [com.fulcrologic.fulcro.application :as app]
@@ -18,21 +19,6 @@
 (def sui-button (interop/react-factory Button))
 (def sui-input (interop/react-factory Input))
 
-(defmutation delete-task [{:keys [id list-id]}]
-  (action [{:keys [state]}]                                 ; What to do locally
-          (swap! state update :task/id dissoc id)
-          (swap! state merge/remove-ident* [:task/id id] [:task-list/id list-id :task-list/tasks]))
-  (remote [env] true)
-  )
-
-(defmutation edit-description [{:keys [id new-value]}]
-  (action [{:keys [state]}]
-          (swap! state assoc-in [:task/id id :task/description] new-value)))
-
-(defmutation edit-completed [{:keys [id new-value]}]
-  (action [{:keys [state]}]
-          (swap! state assoc-in [:task/id id :task/completed] new-value)))
-
 (defn on-edit-toggle [this]
   (comp/set-state! this (update (comp/get-state this) :editing? not)))
 
@@ -40,21 +26,21 @@
 (defn on-edit-update [this evt]
   (comp/set-state! this (assoc (comp/get-state this) :edit-value (events/target-value evt))))
 
-(defn on-edit-confirm [this mutation id]
+(defn on-edit-confirm [this id]
   (if (not-empty (comp/get-state this :edit-value))
     (do
-      (comp/transact! this [(mutation {:id id :new-value (comp/get-state this :edit-value)})])
+      (comp/transact! this [(api/edit-description {:id id :new-value (comp/get-state this :edit-value)})])
       (comp/set-state! this (assoc (comp/get-state this) :editing? false)))))
 
 (defn on-edit-cancel [this]
   (comp/set-state! this (assoc (comp/get-state this) :editing? false)))
 
-(defn on-delete [this mutation id list-id]
-  (comp/transact! this [(mutation {:id id :list-id list-id})]))
+(defn on-delete [this id list-id]
+  (comp/transact! this [(api/delete-task {:id id :list-id list-id})]))
 
-(defn on-completed-change [this mutation id]
+(defn on-completed-change [this id]
   (comp/set-state! this (update (comp/get-state this) :task-completed? not))
-  (comp/transact! this [(mutation {:id id :new-value (comp/get-state this :task-completed?)})]))
+  (comp/transact! this [(api/edit-completed {:id id :new-value (not (comp/get-state this :task-completed?))})]))
 
 (defsc Task [this {:task/keys [id description completed list-id] :as props}]
   {:query [:task/id :task/description :task/completed :task/list-id]
@@ -67,7 +53,6 @@
                      {:editing?         false
                       :edit-value       description
                       :task-completed?  completed})}
-  ; Use df/load to load data from the server
 
   (js/console.log "Task render" id)
   (let [{:keys [editing? edit-value task-completed?]} (comp/get-state this)]
@@ -79,14 +64,14 @@
                     :style {:width "88%"}})
         (sui-button {:onClick #(on-edit-cancel this) :color "grey"
                      :floated "right" :icon "times circle outline" :style {:marginLeft "10px"}})
-        (sui-button {:onClick #(on-edit-confirm this edit-description id) :color "green"
+        (sui-button {:onClick #(on-edit-confirm this id) :color "green"
                      :floated "right" :icon "check circle outline" :style {:marginLeft "10px"}}))
       (fragment
-        (sui-button {:onClick #(on-completed-change this edit-completed id) :color (if task-completed? "teal" "yellow")
+        (sui-button {:onClick #(on-completed-change this id) :color (if task-completed? "teal" "yellow")
                      :circular true :icon (if task-completed? "check circle outline" "circle outline")})
         (span {:style {:textDecoration (if task-completed? "line-through" "none")
                        :paddingLeft "10px" :width "80%" :display "inline-block"}} description)
-        (sui-button {:onClick #(on-delete this delete-task id list-id) :color "red"
+        (sui-button {:onClick #(on-delete this id list-id) :color "red"
                      :floated "right" :icon "trash alternate outline" :style {:marginLeft "10px"}})
         (sui-button {:onClick #(on-edit-toggle this) :color "blue"
                      :floated "right" :icon "edit outline" :style {:marginLeft "10px"}}))))))
@@ -96,36 +81,19 @@
   {:query   [:task-list/id
              :task-list/item-count
              {:task-list/tasks (comp/get-query Task)}]
-   ;:ident   :task-list/id
    :ident    (fn [] [:task-list/id (:task-list/id props)])
-   :initial-state {:task-list/id          :param/id
-                   :task-list/item-count  :param/item-count
-   ;                :task-list/tasks [{:id 1 :description "Task 1" :completed false :list-id 1}
-   ;                                  {:id 2 :description "Task 2" :completed true :list-id 1}
-   ;                                  {:id 3 :description "Task 3" :completed false :list-id 1}]
-   }
+   :initial-state {:task-list/id 1}
    }
   (js/console.log "TaskList render" ::task-list)
   (when (not-empty tasks)
     (map ui-task tasks)))
 (def ui-task-list (comp/factory TaskList))
 
-(defmutation add-task [{:keys [list-id description]}]
-  (action
-    [{:keys [state]}]
-    (let [new-id (inc (get-in @state [:task-list/id list-id :task-list/item-count]))]
-      (swap! state merge/merge-component Task {:task/id           new-id
-                                               :task/description  description
-                                               :task/completed    false
-                                               :task/list-id      list-id}
-             :append [:task-list/id list-id :task-list/tasks])
-      (swap! state update-in [:task-list/id list-id :task-list/item-count] inc))))
-
 (defn on-add-task [this task-list description]
   (if (not-empty description)
     (do
       (js/console.log "Adding task" description)
-      (comp/transact! this [(add-task {:list-id (:task-list/id task-list)
+      (comp/transact! this [(api/add-task {:list-id (:task-list/id task-list)
                                        :description description})])
       (comp/set-state! this (assoc (comp/get-state this) :edit-value "")))))
 
@@ -155,7 +123,7 @@
   {:query [{:root/task-input (comp/get-query TaskInput)}
            {:root/task-list (comp/get-query TaskList)}]
    :initial-state {:root/task-input {:id 1 :list-id 1}
-                   :root/task-list {:id 1 :item-count 0}
+                   :root/task-list {}
                    }}
   ; Root component does not need an ident, it is the root of the tree in database
   (js/console.log "Root render" ::root)

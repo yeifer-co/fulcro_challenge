@@ -25,8 +25,8 @@ Build a  Todo APP using Fulcro
 
 - [x] Build the rest of the fulcro components you need
 - [x] Then make mutations in front end to save data to the fulcro state map
-- [ ] Connect with backend to save data with mutations and retrieve data with resolvers and load data with df/load
-- [ ] Install datomic and save data in the backend to datomic database
+- [x] Connect with backend to save data with mutations and retrieve data with resolvers and load data with df/load
+- [x] Install datomic and save data in the backend to datomic database
 
 ## Architecture understanding
 
@@ -47,6 +47,12 @@ Backend:
 a. Pathom - Is a Clojure(Script) library that provides a query language (EQL) and a query engine. It is used to query the backend database and return the data to the frontend.
 
 b. Datomic - Is a distributed database that stores data as facts (Inmutable data). It is used to store the application data.
+
+What about data tree and ui workin with client DB?
+
+![Fulcro architecture](doc/diagrams/data_tree.png)
+
+Data tree manages many of the magic of Fulcro, the data tree is a representation of the application state, it is a tree of data that is used to render the UI, to keep track of the application state and to send mutations to the backend the query engine colects the individual queries and merges them into a single query that is sent to the backend, the backend returns the data that is used to update the components state and re-render the UI.
 
 ## Datomic research
 
